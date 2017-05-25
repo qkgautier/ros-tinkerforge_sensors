@@ -84,7 +84,7 @@ private:
   }
 
   //! Calculate rad from deg
-  float deg2rad(float x)
+  double deg2rad(double x)
   {
     return x*M_PI/180.0;
   }

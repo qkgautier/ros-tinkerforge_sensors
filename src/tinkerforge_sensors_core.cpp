@@ -157,6 +157,8 @@ void TinkerforgeSensors::publishImuMessage(SensorDevice *sensor)
   int16_t acc_x, acc_y, acc_z;
   int16_t mag_x, mag_y, mag_z;
   int16_t ang_x, ang_y, ang_z;
+  double acc_f_x, acc_f_y, acc_f_z;
+  double ang_f_x, ang_f_y, ang_f_z;
   int16_t temp;
   float x = 0.0, y = 0.0, z = 0.0, w = 0.0;
   int16_t ix = 0, iy = 0, iz = 0, iw = 0;
@@ -182,13 +184,13 @@ void TinkerforgeSensors::publishImuMessage(SensorDevice *sensor)
       imu_get_all_data((IMU*)sensor->getDev(), &acc_x, &acc_y, &acc_z, &mag_x, &mag_y,
         &mag_z, &ang_x, &ang_y, &ang_z, &temp);
 
-      ang_x = ang_x / 14.375;
-      ang_y = ang_y / 14.375;
-      ang_z = ang_z / 14.375;
+      ang_f_x = ang_x / 14.375;
+      ang_f_y = ang_y / 14.375;
+      ang_f_z = ang_z / 14.375;
 
-      acc_x = (acc_x/1000.0)*9.80605;
-      acc_y = (acc_y/1000.0)*9.80605;
-      acc_z = (acc_z/1000.0)*9.80605;
+      acc_f_x = (acc_x/1000.0)*9.80605;
+      acc_f_y = (acc_y/1000.0)*9.80605;
+      acc_f_z = (acc_z/1000.0)*9.80605;
 
       imu_msg.orientation.x = w;
       imu_msg.orientation.y = z*-1;
@@ -206,13 +208,13 @@ void TinkerforgeSensors::publishImuMessage(SensorDevice *sensor)
       imu_v2_get_linear_acceleration((IMUV2*)sensor->getDev(), &acc_x, &acc_y, &acc_z);
       imu_v2_get_angular_velocity((IMUV2*)sensor->getDev(), &ang_x, &ang_y, &ang_z);
 
-      ang_x = ang_x * 16;
-      ang_y = ang_y * 16;
-      ang_z = ang_z * 16;
+      ang_f_x = ang_x / 16.0;
+      ang_f_y = ang_y / 16.0;
+      ang_f_z = ang_z / 16.0;
 
-      acc_x = acc_x * 100;
-      acc_y = acc_y * 100;
-      acc_z = acc_z * 100;
+      acc_f_x = acc_x / 100.0;
+      acc_f_y = acc_y / 100.0;
+      acc_f_z = acc_z / 100.0;
 
       imu_msg.orientation.x = z*-1;
       imu_msg.orientation.y = y;
@@ -231,34 +233,34 @@ void TinkerforgeSensors::publishImuMessage(SensorDevice *sensor)
 
     // orientation_covariance
     boost::array<const double, 9> oc =
-      { 0.1, 0.1, 0.1,
-        0.1, 0.1, 0.1,
-        0.1, 0.1, 0.1};
+      { 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0};
 
     imu_msg.orientation_covariance = oc;
 
     // velocity from °/14.375 to rad/s
-    imu_msg.angular_velocity.x = deg2rad(ang_x);
-    imu_msg.angular_velocity.y = deg2rad(ang_y);
-    imu_msg.angular_velocity.z = deg2rad(ang_z);
+    imu_msg.angular_velocity.x = deg2rad(ang_f_x);
+    imu_msg.angular_velocity.y = deg2rad(ang_f_y);
+    imu_msg.angular_velocity.z = deg2rad(ang_f_z);
 
     // velocity_covariance
     boost::array<const double, 9> vc =
-      { 0.1, 0.1, 0.1,
-        0.1, 0.1, 0.1,
-        0.1, 0.1, 0.1};
+      { 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0};
     imu_msg.angular_velocity_covariance = vc;
 
     // acceleration from mG to m/s²
-    imu_msg.linear_acceleration.x = acc_x;
-    imu_msg.linear_acceleration.y = acc_y;
-    imu_msg.linear_acceleration.z = acc_z;
+    imu_msg.linear_acceleration.x = acc_f_x;
+    imu_msg.linear_acceleration.y = acc_f_y;
+    imu_msg.linear_acceleration.z = acc_f_z;
 
     // linear_acceleration_covariance
     boost::array<const double, 9> lac =
-      { 0.1, 0.1, 0.1,
-        0.1, 0.1, 0.1,
-        0.1, 0.1, 0.1};
+      { 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0};
     imu_msg.linear_acceleration_covariance = lac;
 
     sensor->getPub().publish(imu_msg);
