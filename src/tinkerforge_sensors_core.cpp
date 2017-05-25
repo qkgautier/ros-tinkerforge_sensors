@@ -668,7 +668,6 @@ void TinkerforgeSensors::callbackEnumerate(const char *uid, const char *connecte
 
     imu_dev = new SensorDevice(imu_v2, uid, std::string(""), IMU_V2_MAGNETIC_DEVICE_IDENTIFIER, SensorClass::MAGNETIC, 10);
     tfs->sensors.push_back(imu_dev);
-    return;
   }
   else if (device_identifier == GPS_DEVICE_IDENTIFIER)
   {
@@ -783,7 +782,13 @@ void TinkerforgeSensors::callbackEnumerate(const char *uid, const char *connecte
     //ROS_INFO_STREAM("Add Params");
     if (it != tfs->conf.end())
     {
-      tfs->sensors.back()->setParams(it->second);
+      auto sit = tfs->sensors.rbegin();
+      for(unsigned int i = sensor_count; i < tfs->sensors.size(); i++)
+      {
+        (*sit)->setParams(it->second);
+        sit++;
+      }
+	  //tfs->sensors.back()->setParams(it->second);
     }
   }
 }

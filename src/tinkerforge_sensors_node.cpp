@@ -46,7 +46,7 @@ int main (int argc, char **argv)
   SensorParam param;
   XmlRpc::XmlRpcValue list;
 
-  if (n.getParam("/tfsensors/sensor_conf/", list))
+  if (private_node_handle_.getParam("sensor_conf", list))
   {
     for (XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = list.begin(); it != list.end(); ++it) {
       if (list[it->first].getType() == XmlRpc::XmlRpcValue::TypeString)
@@ -84,6 +84,7 @@ int main (int argc, char **argv)
       }
     }
   }
+
   // init tinkerforge connection
   if (!node_tfs->init())
   {
